@@ -8,15 +8,17 @@
 import Foundation
 
 struct Song: Codable, Identifiable, Equatable {
-    let id = UUID()
+    let id: Int
     let title: String
     let artist: String
     let audioURL: URL
     let artworkURL: URL?
     
     enum CodingKeys: String, CodingKey {
-        case title, artist
-        case audioURL = "url"
+        case id
+        case title
+        case artist
+        case audioURL = "audio_url"
         case artworkURL = "cover_url"
     }
 }
