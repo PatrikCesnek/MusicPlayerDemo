@@ -11,7 +11,9 @@ import SwiftUI
 struct MusicPlayerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                SongListView()
+            }
         }
     }
 }
