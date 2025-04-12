@@ -21,6 +21,10 @@ struct SongRow: View {
                 }
                 .frame(width: 60, height: 60)
                 .cornerRadius(8)
+            } else {
+                Image(systemName: Constants.Images.musicNote)
+                    .resizable()
+                    .frame(width: 60, height: 60)
             }
             
             VStack(alignment: .leading) {
