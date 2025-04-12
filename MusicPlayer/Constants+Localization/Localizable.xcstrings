@@ -1,0 +1,39 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Backward" : {
+      "extractionState" : "manual"
+    },
+    "Download" : {
+      "extractionState" : "manual"
+    },
+    "Downloaded" : {
+      "extractionState" : "manual"
+    },
+    "Downloading..." : {
+      "extractionState" : "manual"
+    },
+    "Forward" : {
+      "extractionState" : "manual"
+    },
+    "Loading..." : {
+      "extractionState" : "manual"
+    },
+    "Now Playing" : {
+      "extractionState" : "manual"
+    },
+    "Pause" : {
+      "extractionState" : "manual"
+    },
+    "Play" : {
+      "extractionState" : "manual"
+    },
+    "Retry" : {
+      "extractionState" : "manual"
+    },
+    "Songs" : {
+      "extractionState" : "manual"
+    }
+  },
+  "version" : "1.0"
+}
