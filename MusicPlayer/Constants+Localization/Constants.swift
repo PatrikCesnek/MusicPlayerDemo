@@ -21,9 +21,13 @@ struct Constants {
         static let download = "Download".localizedCapitalized
         static let downloading = "Downloading...".localizedCapitalized
         static let downloaded = "Downloaded".localizedCapitalized
+        static let nowPlaying = "Now Playing".localizedCapitalized
+        static let currentPosition = "Current Position".localizedCapitalized
     }
     
     struct Images {
         static let musicNote = "music.note.house"
+        static let pause = "pause.circle.fill"
+        static let play = "play.circle.fill"
     }
 }

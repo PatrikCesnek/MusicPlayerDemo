@@ -39,9 +39,9 @@ struct SongListView: View {
             viewModel.loadSongs()
         }
         .navigationTitle(Constants.Strings.songListTitle)
-        //            .navigationDestination(item: $selectedSong) { song in
-        //                PlayerView(song: song)
-        //            }
+        .navigationDestination(item: $selectedSong) { song in
+            PlayerView(song: song)
+        }
     }
        
 }

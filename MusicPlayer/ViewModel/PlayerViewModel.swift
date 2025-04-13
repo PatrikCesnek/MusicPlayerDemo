@@ -10,7 +10,7 @@ import Foundation
 @Observable
 class PlayerViewModel {
     let song: Song
-    let audioManager = AudioManager()
+    var audioManager = AudioManager()
     
     init(song: Song) {
         self.song = song

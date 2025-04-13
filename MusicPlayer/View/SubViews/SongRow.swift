@@ -16,14 +16,12 @@ struct SongRow: View {
                 AsyncImage(url: artworkURL) { image in
                     image.resizable()
                 } placeholder: {
-                    Image(systemName: Constants.Images.musicNote)
-                        .resizable()
+                    EmptySongImage()
                 }
                 .frame(width: 60, height: 60)
                 .cornerRadius(8)
             } else {
-                Image(systemName: Constants.Images.musicNote)
-                    .resizable()
+                EmptySongImage()
                     .frame(width: 60, height: 60)
             }
             
