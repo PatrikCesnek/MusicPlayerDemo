@@ -14,7 +14,7 @@ class PlayerViewModel {
     
     init(song: Song) {
         self.song = song
-        audioManager.play(url: song.audioURL)
+        audioManager.load(url: song.audioURL)
     }
     
     func togglePlayPause() {
@@ -23,5 +23,9 @@ class PlayerViewModel {
     
     func seek(to time: Double) {
         audioManager.seek(to: time)
+    }
+    
+    func restart() {
+        audioManager.restart()
     }
 }

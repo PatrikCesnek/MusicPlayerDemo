@@ -26,8 +26,10 @@ struct Constants {
     }
     
     struct Images {
-        static let musicNote = "music.note.house"
+        static let musicNote = "music.note.house.fill"
         static let pause = "pause.circle.fill"
         static let play = "play.circle.fill"
+        static let restart = "arrow.clockwise.circle.fill"
+        static let download = "arrow.down.circle.fill"
     }
 }

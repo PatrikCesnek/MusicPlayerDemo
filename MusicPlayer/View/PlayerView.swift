@@ -25,7 +25,8 @@ struct PlayerView: View {
                 } placeholder: {
                     EmptySongImage()
                 }
-                .frame(height: 300)
+                .frame(height: 250)
+                .padding(24)
             }
 
             Text(viewModel.song.title)
@@ -42,9 +43,9 @@ struct PlayerView: View {
                 Slider(value: $viewModel.audioManager.currentTime, in: 0...viewModel.audioManager.duration, step: 1) {
                     Text(Constants.Strings.currentPosition)
                 } minimumValueLabel: {
-                    Text(formatTime(viewModel.audioManager.currentTime))
+                    Text(Helpers.formatTime(viewModel.audioManager.currentTime))
                 } maximumValueLabel: {
-                    Text(formatTime(viewModel.audioManager.duration))
+                    Text(Helpers.formatTime(viewModel.audioManager.duration))
                 } onEditingChanged: { editing in
                     if !editing {
                         viewModel.seek(to: viewModel.audioManager.currentTime)
@@ -53,15 +54,11 @@ struct PlayerView: View {
                 .padding(16)
             }
             
-            Button(
-                action: {
-                    viewModel.togglePlayPause()
-                },
-                label: {
-                    Image(systemName: viewModel.audioManager.isPlaying ? Constants.Images.pause : Constants.Images.play)
-                        .resizable()
-                        .frame(width: 64, height: 64)
-                }
+            PlayerControlsView(
+                restart: { viewModel.restart() },
+                togglePlayPause: { viewModel.togglePlayPause() },
+                downloadSong: {},
+                isPlaying: $viewModel.audioManager.isPlaying
             )
             
             if viewModel.audioManager.isLoading {
@@ -72,12 +69,9 @@ struct PlayerView: View {
         }
         .navigationTitle(Constants.Strings.nowPlaying)
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    func formatTime(_ time: Double) -> String {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+        .onAppear {
+            viewModel.togglePlayPause()
+        }
     }
 }
 
