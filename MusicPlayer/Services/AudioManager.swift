@@ -17,13 +17,39 @@ class AudioManager {
     var currentTime: Double = 0
     var duration: Double = 0
     var isLoading = false
+    var error: String?
     
     private var timeObserver: Any?
 
-    func load(url: URL) {
-        guard player == nil else { return }
+    func load(url: URL, fileName: String) {
+        guard player == nil else {
+            error = Constants.Strings.alreadyPlaying
+            return
+        }
 
         isLoading = true
+
+        Task {
+            let localURL: URL
+            if let existing = FileDownloadManager.shared.localFileURL(named: fileName) {
+                localURL = existing
+            } else {
+                do {
+                    localURL = try await FileDownloadManager.shared.downloadFile(from: url, fileName: fileName)
+                } catch {
+                    self.error =  Constants.Strings.downloadError + " \(error)"
+                    await MainActor.run { self.isLoading = false }
+                    return
+                }
+            }
+
+            await MainActor.run {
+                self.preparePlayer(with: localURL)
+            }
+        }
+    }
+
+    private func preparePlayer(with url: URL) {
         playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
 
@@ -40,7 +66,7 @@ class AudioManager {
                     }
                 }
             } catch {
-                print("Failed to load duration: \(error)")
+                self.error = Constants.Strings.durationError + " \(error)"
             }
 
             await MainActor.run {
@@ -104,10 +130,27 @@ class AudioManager {
         }
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func playNextSong(from url: URL, fileName: String) {
+        stop()
+        player = nil
+        playerItem = nil
+        currentTime = 0
+        duration = 0
+        isPlaying = false
+        load(url: url, fileName: fileName)
+    }
+
+    func stop() {
+        player?.pause()
+        isPlaying = false
         if let observer = timeObserver {
             player?.removeTimeObserver(observer)
+            timeObserver = nil
         }
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    deinit {
+        stop()
     }
 }

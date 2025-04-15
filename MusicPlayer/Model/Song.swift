@@ -21,4 +21,8 @@ struct Song: Codable, Identifiable, Equatable, Hashable {
         case audioURL = "audio_url"
         case artworkURL = "cover_url"
     }
+    
+    var fileName: String {
+        "\(id)-\(title).mp3"
+    }
 }

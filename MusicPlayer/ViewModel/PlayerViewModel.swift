@@ -14,7 +14,9 @@ class PlayerViewModel {
     
     init(song: Song) {
         self.song = song
-        audioManager.load(url: song.audioURL)
+
+        let localFileURL = FileDownloadManager.shared.localFileURL(named: song.fileName)
+        audioManager.load(url: localFileURL ?? song.audioURL, fileName: song.fileName)
     }
     
     func togglePlayPause() {
@@ -27,5 +29,14 @@ class PlayerViewModel {
     
     func restart() {
         audioManager.restart()
+    }
+
+    func downloadSong() async {
+        do {
+            let fileURL = try await FileDownloadManager.shared.downloadFile(from: song.audioURL, fileName: song.fileName)
+            print("Downloaded to: \(fileURL.path)")
+        } catch {
+            print("Download failed: \(error)")
+        }
     }
 }

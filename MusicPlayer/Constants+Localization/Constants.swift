@@ -23,6 +23,9 @@ struct Constants {
         static let downloaded = "Downloaded".localizedCapitalized
         static let nowPlaying = "Now Playing".localizedCapitalized
         static let currentPosition = "Current Position".localizedCapitalized
+        static let alreadyPlaying = "Player is already playing.".localizedCapitalized
+        static let downloadError = "Download failed:".localizedCapitalized
+        static let durationError = "Failed to load duration:"
     }
     
     struct Images {
