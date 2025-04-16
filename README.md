@@ -26,7 +26,7 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 <h3>🧪 Bonus Requirements (Optional)</h3>
 
 - [ ] Implement background audio playback.
-- [ ] Persist last played song and position.
+- [x] Persist last played song and position.
 - [ ] Add support for remote control (lock screen controls).
 - [ ] Add simple unit tests for ViewModels.
 - [ ] Display waveform or animation during playback.
