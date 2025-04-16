@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+import MediaPlayer
 
 @Observable
 class AudioManager {
@@ -20,6 +21,9 @@ class AudioManager {
     var error: String?
     
     private var timeObserver: Any?
+    
+    static let shared = AudioManager()
+    private init() {}
 
     func load(url: URL, fileName: String) {
         guard player == nil else {
@@ -147,6 +151,39 @@ class AudioManager {
             timeObserver = nil
         }
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    func configureAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            self.error = "Failed to configure AVAudioSession: \(error)"
+        }
+    }
+    
+    func setupNowPlaying(song: Song, currentTime: Double, duration: Double) {
+        var nowPlayingInfo: [String: Any] = [
+            MPMediaItemPropertyTitle: song.title,
+            MPMediaItemPropertyArtist: song.artist,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
+            MPMediaItemPropertyPlaybackDuration: duration,
+            MPNowPlayingInfoPropertyPlaybackRate: 1.0
+        ]
+
+        if let artworkURL = song.artworkURL,
+           let data = try? Data(contentsOf: artworkURL),
+           let image = UIImage(data: data) {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+        }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+    
+    func configureRemoteCommands(togglePlayPause: @escaping () -> Void) {
+        let center = MPRemoteCommandCenter.shared()
+        center.playCommand.addTarget { _ in togglePlayPause(); return .success }
+        center.pauseCommand.addTarget { _ in togglePlayPause(); return .success }
     }
 
     deinit {
