@@ -16,14 +16,10 @@ struct SongListView: View {
             if viewModel.isLoading {
                 ProgressView(Constants.Strings.loading)
             } else if let error = viewModel.error {
-                VStack {
-                    Text(error)
-                        .foregroundColor(.red)
-                    Button(Constants.Strings.retry) {
-                        viewModel.loadSongs()
-                    }
-                    .padding()
-                }
+                ErrorView(
+                    errorString: error,
+                    retry: { viewModel.loadSongs() }
+                )
             } else {
                 List(viewModel.songs) { song in
                     Button {

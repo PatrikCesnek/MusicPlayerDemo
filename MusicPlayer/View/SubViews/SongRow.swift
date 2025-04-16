@@ -12,18 +12,8 @@ struct SongRow: View {
     
     var body: some View {
         HStack {
-            if let artworkURL = song.artworkURL {
-                AsyncImage(url: artworkURL) { image in
-                    image.resizable()
-                } placeholder: {
-                    EmptySongImage()
-                }
+            SongImage(imageURL: song.artworkURL)
                 .frame(width: 60, height: 60)
-                .cornerRadius(8)
-            } else {
-                EmptySongImage()
-                    .frame(width: 60, height: 60)
-            }
             
             VStack(alignment: .leading) {
                 Text(song.title)

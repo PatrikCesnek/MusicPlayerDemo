@@ -21,18 +21,9 @@ struct PlayerView: View {
                     .frame(width: 100, height: 100)
             } else {
                 VStack(spacing: 20) {
-                    if let artworkURL = viewModel.song.artworkURL {
-                        AsyncImage(url: artworkURL) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .cornerRadius(16)
-                        } placeholder: {
-                            EmptySongImage()
-                        }
+                    SongImage(imageURL: viewModel.song.artworkURL)
                         .frame(height: 250)
                         .padding(24)
-                    }
 
                     Text(viewModel.song.title)
                         .font(.title)
@@ -45,17 +36,15 @@ struct PlayerView: View {
                     Spacer()
 
                     if viewModel.audioManager.duration > 0 && viewModel.audioManager.duration.isFinite {
-                        Slider(value: $viewModel.audioManager.currentTime, in: 0...viewModel.audioManager.duration, step: 1) {
-                            Text(Constants.Strings.currentPosition)
-                        } minimumValueLabel: {
-                            Text(Helpers.formatTime(viewModel.audioManager.currentTime))
-                        } maximumValueLabel: {
-                            Text(Helpers.formatTime(viewModel.audioManager.duration))
-                        } onEditingChanged: { editing in
-                            if !editing {
-                                viewModel.seek(to: viewModel.audioManager.currentTime)
-                            }
-                        }
+                        SliderView(
+                            config: .init(
+                                currentTime: $viewModel.audioManager.currentTime,
+                                duration: viewModel.audioManager.duration,
+                                seekAction: { _ in
+                                    viewModel.seek(to: viewModel.audioManager.currentTime)
+                                }
+                            )
+                        )
                         .padding(16)
                     }
                     
