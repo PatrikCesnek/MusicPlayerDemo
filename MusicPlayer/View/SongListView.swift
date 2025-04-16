@@ -31,9 +31,6 @@ struct SongListView: View {
                 .listStyle(.plain)
             }
         }
-        .onAppear {
-            viewModel.loadSongs()
-        }
         .navigationTitle(Constants.Strings.songListTitle)
         .navigationDestination(item: $selectedSong) { song in
             PlayerView(song: song)

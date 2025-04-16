@@ -13,6 +13,10 @@ class SongListViewModel {
     var isLoading = false
     var error: String? = nil
     
+    init() {
+        loadSongs()
+    }
+    
     func loadSongs() {
         isLoading = true
         error = nil
