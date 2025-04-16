@@ -10,7 +10,7 @@ import Foundation
 @Observable
 class PlayerViewModel {
     let song: Song
-    var audioManager = AudioManager()
+    var audioManager = AudioManager.shared
     var isDownloaded: Bool = false
     var isLoading: Bool = false
     
@@ -36,9 +36,18 @@ class PlayerViewModel {
     
     private func load() {
         isLoading = true
+        setupAudio()
+        configureRemoteCommands()
+        isLoading = false
+    }
+
+    private func setupAudio() {
         let localFileURL = FileDownloadManager.shared.localFileURL(named: song.fileName)
         audioManager.load(url: localFileURL ?? song.audioURL, fileName: song.fileName)
-        isLoading = false
+    }
+
+    private func configureRemoteCommands() {
+        audioManager.configureRemoteCommands(togglePlayPause: togglePlayPause)
     }
     
     func togglePlayPause() {

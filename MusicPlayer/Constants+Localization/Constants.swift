@@ -10,6 +10,8 @@ import Foundation
 struct Constants {
     struct Strings {
         static let songListURL = "https://harmanec.com/hh-assignment/tracks.json"
+        static let lastPlayedPositionKey = "lastPlaybackPosition"
+        static let lastPlayedSongKey = "lastPlayedSongID"
         static let songListTitle = "Songs".localizedCapitalized
         static let loading = "Loading...".localizedCapitalized
         static let retry = "Retry".localizedCapitalized
