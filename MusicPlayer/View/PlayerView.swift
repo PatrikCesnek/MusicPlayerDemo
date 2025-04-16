@@ -18,7 +18,6 @@ struct PlayerView: View {
         Group {
             if viewModel.isLoading {
                 ProgressView()
-                    .frame(width: 100, height: 100)
             } else {
                 VStack(spacing: 20) {
                     SongImage(imageURL: viewModel.song.artworkURL)

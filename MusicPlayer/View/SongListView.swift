@@ -14,7 +14,7 @@ struct SongListView: View {
     var body: some View {
         Group {
             if viewModel.isLoading {
-                ProgressView(Constants.Strings.loading)
+                ProgressView()
             } else if let error = viewModel.error {
                 ErrorView(
                     errorString: error,
@@ -25,14 +25,24 @@ struct SongListView: View {
                     Button {
                         selectedSong = song
                     } label: {
-                        SongRow(song: song)
+                        SongRow(
+                            song: song,
+                            isDownloaded: viewModel.downloadedSongs.contains(song.id),
+                            downloadAction: {
+                                viewModel.toggleDownload(for: song)
+                            }
+                        )
                     }
                 }
                 .listStyle(.plain)
+                .refreshable {
+                    viewModel.loadSongs()
+                    viewModel.checkDownloadedSongs()
+                }
+                .onAppear{
+                    viewModel.checkDownloadedSongs()
+                }
             }
-        }
-        .onAppear {
-            viewModel.loadSongs()
         }
         .navigationTitle(Constants.Strings.songListTitle)
         .navigationDestination(item: $selectedSong) { song in
