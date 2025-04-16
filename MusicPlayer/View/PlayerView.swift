@@ -74,6 +74,13 @@ struct PlayerView: View {
         }
         .navigationTitle(Constants.Strings.nowPlaying)
         .navigationBarTitleDisplayMode(.inline)
+        .alert(
+            viewModel.alertTitle,
+            isPresented: $viewModel.showAlert) {
+                Button(Constants.Strings.ok, role: .cancel) { }
+            } message: {
+                Text(viewModel.alertMessage)
+            }
     }
 }
 

@@ -12,12 +12,21 @@ class PlayerViewModel {
     let song: Song
     var audioManager = AudioManager()
     var isDownloaded: Bool = false
-    var error: String?
     var isLoading: Bool = false
+    
+    var showAlert: Bool = false
+    var alertTitle: String = ""
+    var alertMessage: String = ""
     
     init(song: Song) {
         self.song = song
         load()
+    }
+    
+    private func showAlert(title: String, message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
     }
     
     private func load() {
@@ -42,13 +51,12 @@ class PlayerViewModel {
     func downloadSong() {
         Task {
             do {
-                self.error = nil
                 let fileURL = try await FileDownloadManager.shared.downloadFile(from: song.audioURL, fileName: song.fileName)
-                print("Downloaded to \(fileURL)")
+                showAlert(title: Constants.Strings.downloaded, message: "\(song.fileName)")
                 isDownloaded = true
             } catch {
                 isDownloaded = false
-                self.error = Constants.Strings.downloadError + " \(error.localizedDescription)"
+                showAlert(title: Constants.Strings.downloadError, message: error.localizedDescription)
             }
         }
     }
@@ -57,9 +65,9 @@ class PlayerViewModel {
         do {
             try FileDownloadManager.shared.deleteFile(named: song.fileName)
             isDownloaded = false
-            print("Deleted: \(song.fileName)")
+            showAlert(title: Constants.Strings.deleted, message: song.fileName)
         } catch {
-            self.error = Constants.Strings.deletionError + " \(error.localizedDescription)"
+            showAlert(title: Constants.Strings.deletionError, message: error.localizedDescription)
         }
     }
 }
