@@ -125,9 +125,8 @@ class AudioManager {
 
         player.seek(to: .zero)
         currentTime = 0
-        if isPlaying {
-            player.play()
-        }
+        player.play()
+        isPlaying = true
     }
 
     func playNextSong(from url: URL, fileName: String) {

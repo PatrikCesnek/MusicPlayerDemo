@@ -13,12 +13,18 @@ class PlayerViewModel {
     var audioManager = AudioManager()
     var isDownloaded: Bool = false
     var error: String?
+    var isLoading: Bool = false
     
     init(song: Song) {
         self.song = song
-
+        load()
+    }
+    
+    private func load() {
+        isLoading = true
         let localFileURL = FileDownloadManager.shared.localFileURL(named: song.fileName)
         audioManager.load(url: localFileURL ?? song.audioURL, fileName: song.fileName)
+        isLoading = false
     }
     
     func togglePlayPause() {
