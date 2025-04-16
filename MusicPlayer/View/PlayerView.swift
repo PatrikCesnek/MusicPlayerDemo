@@ -57,7 +57,9 @@ struct PlayerView: View {
             PlayerControlsView(
                 restart: { viewModel.restart() },
                 togglePlayPause: { viewModel.togglePlayPause() },
-                downloadSong: {},
+                downloadSong: { viewModel.downloadSong() },
+                deleteDownload: { viewModel.deleteDownload() },
+                isDownloaded: viewModel.isDownloaded,
                 isPlaying: $viewModel.audioManager.isPlaying
             )
             

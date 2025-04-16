@@ -32,4 +32,11 @@ final class FileDownloadManager {
         let fileURL = documents.appendingPathComponent(fileName)
         return fileExists(named: fileName) ? fileURL : nil
     }
+    
+    func deleteFile(named fileName: String) throws {
+        let fileURL = localFileURL(named: fileName)
+        if let fileURL = fileURL, FileManager.default.fileExists(atPath: fileURL.path) {
+            try FileManager.default.removeItem(at: fileURL)
+        }
+    }
 }

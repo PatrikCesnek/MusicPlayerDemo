@@ -25,7 +25,8 @@ struct Constants {
         static let currentPosition = "Current Position".localizedCapitalized
         static let alreadyPlaying = "Player is already playing.".localizedCapitalized
         static let downloadError = "Download failed:".localizedCapitalized
-        static let durationError = "Failed to load duration:"
+        static let durationError = "Failed to load duration:".localizedCapitalized
+        static let deletionError = "Failed to delete song:".localizedCapitalized
     }
     
     struct Images {
@@ -34,5 +35,6 @@ struct Constants {
         static let play = "play.circle.fill"
         static let restart = "arrow.clockwise.circle.fill"
         static let download = "arrow.down.circle.fill"
+        static let deleteDownload = "xmark.circle.fill"
     }
 }

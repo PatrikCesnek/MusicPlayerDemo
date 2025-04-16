@@ -11,6 +11,8 @@ import Foundation
 class PlayerViewModel {
     let song: Song
     var audioManager = AudioManager()
+    var isDownloaded: Bool = false
+    var error: String?
     
     init(song: Song) {
         self.song = song
@@ -31,12 +33,27 @@ class PlayerViewModel {
         audioManager.restart()
     }
 
-    func downloadSong() async {
+    func downloadSong() {
+        Task {
+            do {
+                self.error = nil
+                let fileURL = try await FileDownloadManager.shared.downloadFile(from: song.audioURL, fileName: song.fileName)
+                print("Downloaded to \(fileURL)")
+                isDownloaded = true
+            } catch {
+                isDownloaded = false
+                self.error = Constants.Strings.downloadError + " \(error.localizedDescription)"
+            }
+        }
+    }
+    
+    func deleteDownload() {
         do {
-            let fileURL = try await FileDownloadManager.shared.downloadFile(from: song.audioURL, fileName: song.fileName)
-            print("Downloaded to: \(fileURL.path)")
+            try FileDownloadManager.shared.deleteFile(named: song.fileName)
+            isDownloaded = false
+            print("Deleted: \(song.fileName)")
         } catch {
-            print("Download failed: \(error)")
+            self.error = Constants.Strings.deletionError + " \(error.localizedDescription)"
         }
     }
 }
