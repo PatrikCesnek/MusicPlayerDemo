@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Song: Codable, Identifiable, Equatable {
+struct Song: Codable, Identifiable, Equatable, Hashable {
     let id: Int
     let title: String
     let artist: String
@@ -20,5 +20,9 @@ struct Song: Codable, Identifiable, Equatable {
         case artist
         case audioURL = "audio_url"
         case artworkURL = "cover_url"
+    }
+    
+    var fileName: String {
+        "\(id)-\(title).mp3"
     }
 }
