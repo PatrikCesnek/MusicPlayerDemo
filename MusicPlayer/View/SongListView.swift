@@ -14,11 +14,7 @@ struct SongListView: View {
     var body: some View {
         Group {
             if viewModel.isLoading {
-                LoadingView(
-                    lineWidth: 16,
-                    speed: 1,
-                    size: 100
-                )
+                ProgressView()
             } else if let error = viewModel.error {
                 ErrorView(
                     errorString: error,
