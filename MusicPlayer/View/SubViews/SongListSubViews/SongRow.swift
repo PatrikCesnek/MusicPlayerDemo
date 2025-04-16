@@ -8,7 +8,19 @@
 import SwiftUI
 
 struct SongRow: View {
-    let song: Song
+    private let song: Song
+    private let isDownloaded: Bool
+    private let downloadAction: () -> Void
+    
+    init(
+        song: Song,
+        isDownloaded: Bool,
+        downloadAction: @escaping () -> Void
+    ) {
+        self.song = song
+        self.isDownloaded = isDownloaded
+        self.downloadAction = downloadAction
+    }
     
     var body: some View {
         HStack {
@@ -22,10 +34,28 @@ struct SongRow: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            
+            Spacer()
+            
+            Button(
+                action: {
+                    downloadAction()
+                },
+                label: {
+                    Image(systemName: isDownloaded ? Constants.Images.deleteDownload : Constants.Images.download)
+                        .foregroundColor(isDownloaded ? .red : .blue)
+                        .font(.system(size: 24))
+                }
+            )
+            .buttonStyle(.plain)
         }
     }
 }
 
 #Preview {
-    SongRow(song: Mock.song)
+    SongRow(
+        song: Mock.song,
+        isDownloaded: false,
+        downloadAction: {}
+    )
 }

@@ -20,7 +20,12 @@ class PlayerViewModel {
     
     init(song: Song) {
         self.song = song
+        checkIfDownloaded()
         load()
+    }
+    
+    private func checkIfDownloaded() {
+        isDownloaded = FileDownloadManager.shared.fileExists(named: song.fileName)
     }
     
     private func showAlert(title: String, message: String) {
@@ -51,11 +56,15 @@ class PlayerViewModel {
     func downloadSong() {
         Task {
             do {
-                let fileURL = try await FileDownloadManager.shared.downloadFile(from: song.audioURL, fileName: song.fileName)
-                showAlert(title: Constants.Strings.downloaded, message: "\(song.fileName)")
-                isDownloaded = true
+                _ = try await FileDownloadManager.shared.downloadFile(from: song.audioURL, fileName: song.fileName)
+                await MainActor.run {
+                    isDownloaded = true
+                }
+                showAlert(title: Constants.Strings.downloaded, message: song.fileName)
             } catch {
-                isDownloaded = false
+                await MainActor.run {
+                    isDownloaded = false
+                }
                 showAlert(title: Constants.Strings.downloadError, message: error.localizedDescription)
             }
         }

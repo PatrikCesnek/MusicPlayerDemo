@@ -25,10 +25,23 @@ struct SongListView: View {
                     Button {
                         selectedSong = song
                     } label: {
-                        SongRow(song: song)
+                        SongRow(
+                            song: song,
+                            isDownloaded: viewModel.downloadedSongs.contains(song.id),
+                            downloadAction: {
+                                viewModel.toggleDownload(for: song)
+                            }
+                        )
                     }
                 }
                 .listStyle(.plain)
+                .refreshable {
+                    viewModel.loadSongs()
+                    viewModel.checkDownloadedSongs()
+                }
+                .onAppear{
+                    viewModel.checkDownloadedSongs()
+                }
             }
         }
         .navigationTitle(Constants.Strings.songListTitle)
