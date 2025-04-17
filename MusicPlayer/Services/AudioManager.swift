@@ -161,8 +161,14 @@ class AudioManager {
     
     func configureAudioSession() {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(
+                .playback,
+                mode: .default,
+                policy: .longFormAudio,
+                options: [.allowBluetooth, .allowAirPlay]
+            )
+            try session.setActive(true)
         } catch {
             self.error = "Failed to configure AVAudioSession: \(error.localizedDescription)"
         }
