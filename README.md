@@ -8,7 +8,7 @@ I put most of strings into Constants.swift file for safety and if the string nee
 For now I'm still working on optional requiremetns, but I wanted to be sure everything is here in case I get stuck on something. :)
 
 <p>
-<img width="310" alt="Screenshot 2025-04-16 at 15 18 41" src="https://github.com/user-attachments/assets/de4ea4d7-c403-4864-96bf-3670e1157f93" />
+  <img width="310" alt="Screenshot 2025-04-17 at 12 46 55" src="https://github.com/user-attachments/assets/1341392a-6b14-4903-9a4d-f810f25978a9" />
 <img width="310" alt="Screenshot 2025-04-16 at 15 19 01" src="https://github.com/user-attachments/assets/93acd770-acb7-4982-9a82-25fc639a2fb9" />
 </p>
 
