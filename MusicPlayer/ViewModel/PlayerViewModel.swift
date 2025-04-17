@@ -46,6 +46,7 @@ class PlayerViewModel {
                 try await audioManager.loadAndPlay(
                     url: song.audioURL,
                     fileName: song.fileName,
+                    song: song,
                     forceStream: forceStream
                 )
                 audioManager.setupNowPlaying(song: song)
@@ -114,7 +115,7 @@ class PlayerViewModel {
         let localFileURL = FileDownloadManager.shared.localFileURL(named: song.fileName)
         Task {
             do {
-                try await audioManager.loadAndPlay(url: localFileURL ?? song.audioURL, fileName: song.fileName)
+                try await audioManager.loadAndPlay(url: localFileURL ?? song.audioURL, fileName: song.fileName, song: song)
             } catch {
                 self.error = error.localizedDescription
             }
