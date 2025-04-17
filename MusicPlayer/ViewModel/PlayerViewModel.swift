@@ -42,14 +42,16 @@ class PlayerViewModel {
         
         if audioManager.currentFileName != song.fileName {
             do {
-                try await audioManager.playNextSongAsync(
-                    from: song.audioURL,
-                    fileName: song.fileName
+                let forceStream = !isDownloaded
+                try await audioManager.loadAndPlay(
+                    url: song.audioURL,
+                    fileName: song.fileName,
+                    forceStream: forceStream
                 )
                 audioManager.setupNowPlaying(song: song)
             } catch {
                 self.error = error.localizedDescription
-                showAlert(title: Constants.Strings.downloadError, message: error.localizedDescription)
+                showAlert(title: Constants.Strings.playbackError, message: error.localizedDescription)
             }
         }
         

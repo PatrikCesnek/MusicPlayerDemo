@@ -30,6 +30,7 @@ struct Constants {
         static let downloadError = "Download failed:".localizedCapitalized
         static let durationError = "Failed to load duration:".localizedCapitalized
         static let deletionError = "Failed to delete song:".localizedCapitalized
+        static let playbackError = "Failed to play song:".localizedCapitalized
         static let ok = "OK".localizedCapitalized
     }
     

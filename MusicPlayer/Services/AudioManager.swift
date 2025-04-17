@@ -28,24 +28,20 @@ class AudioManager {
         configureAudioSession()
     }
 
-    func loadAndPlay(url: URL, fileName: String) async throws {
+    func loadAndPlay(url: URL, fileName: String, forceStream: Bool = false) async throws {
         if currentFileName != fileName || player == nil {
             isLoading = true
             
-            let localURL: URL
-            if let existing = FileDownloadManager.shared.localFileURL(named: fileName) {
-                localURL = existing
+            let playURL: URL
+            
+            if !forceStream, let localURL = FileDownloadManager.shared.localFileURL(named: fileName) {
+                playURL = localURL
             } else {
-                do {
-                    localURL = try await FileDownloadManager.shared.downloadFile(from: url, fileName: fileName)
-                } catch {
-                    isLoading = false
-                    throw NSError(domain: "", code: 2, userInfo: [NSLocalizedDescriptionKey: Constants.Strings.downloadError + " \(error.localizedDescription)"])
-                }
+                playURL = url
             }
 
             await MainActor.run {
-                self.preparePlayer(with: localURL)
+                self.preparePlayer(with: playURL)
                 self.currentFileName = fileName
                 self.player?.play()
                 self.isPlaying = true
@@ -57,7 +53,6 @@ class AudioManager {
     }
 
     private func preparePlayer(with url: URL) {
-        // Clean up previous player
         stop()
         
         playerItem = AVPlayerItem(url: url)
