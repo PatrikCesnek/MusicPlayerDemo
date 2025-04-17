@@ -13,6 +13,7 @@ class PlayerViewModel {
     var audioManager = AudioManager.shared
     var isDownloaded: Bool = false
     var isLoading: Bool = false
+    var error: String?
     
     var showAlert: Bool = false
     var alertTitle: String = ""
@@ -21,7 +22,8 @@ class PlayerViewModel {
     init(song: Song) {
         self.song = song
         checkIfDownloaded()
-        load()
+        setupAudio()
+        configureRemoteCommands()
     }
     
     private func checkIfDownloaded() {
@@ -33,25 +35,42 @@ class PlayerViewModel {
         alertMessage = message
         showAlert = true
     }
-    
-    private func load() {
+
+    @MainActor
+    func startPlaying() async {
         isLoading = true
-        setupAudio()
-        configureRemoteCommands()
+        
+        if audioManager.currentFileName != song.fileName {
+            do {
+                try await audioManager.playNextSongAsync(
+                    from: song.audioURL,
+                    fileName: song.fileName
+                )
+                audioManager.setupNowPlaying(song: song)
+            } catch {
+                self.error = error.localizedDescription
+                showAlert(title: Constants.Strings.downloadError, message: error.localizedDescription)
+            }
+        }
+        
         isLoading = false
     }
 
-    private func setupAudio() {
-        let localFileURL = FileDownloadManager.shared.localFileURL(named: song.fileName)
-        audioManager.load(url: localFileURL ?? song.audioURL, fileName: song.fileName)
+    func retry() {
+        Task {
+            await startPlaying()
+        }
     }
 
-    private func configureRemoteCommands() {
-        audioManager.configureRemoteCommands(togglePlayPause: togglePlayPause)
-    }
-    
     func togglePlayPause() {
-        audioManager.togglePlayPause()
+        if audioManager.currentFileName != song.fileName {
+            Task {
+                await startPlaying()
+                audioManager.togglePlayPause()
+            }
+        } else {
+            audioManager.togglePlayPause()
+        }
     }
     
     func seek(to time: Double) {
@@ -87,5 +106,20 @@ class PlayerViewModel {
         } catch {
             showAlert(title: Constants.Strings.deletionError, message: error.localizedDescription)
         }
+    }
+    
+    private func setupAudio() {
+        let localFileURL = FileDownloadManager.shared.localFileURL(named: song.fileName)
+        Task {
+            do {
+                try await audioManager.loadAndPlay(url: localFileURL ?? song.audioURL, fileName: song.fileName)
+            } catch {
+                self.error = error.localizedDescription
+            }
+        }
+    }
+    
+    private func configureRemoteCommands() {
+        audioManager.configureRemoteCommands(togglePlayPause: togglePlayPause)
     }
 }

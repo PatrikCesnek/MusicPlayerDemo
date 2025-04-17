@@ -20,6 +20,7 @@ struct SongListView: View {
                     errorString: error,
                     retry: { viewModel.loadSongs() }
                 )
+                .padding(16)
             } else {
                 List(viewModel.songs) { song in
                     Button {
