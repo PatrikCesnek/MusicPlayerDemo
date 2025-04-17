@@ -27,7 +27,7 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 
 - [x] Implement background audio playback.
 - [x] Persist last played song and position.
-- [ ] Add support for remote control (lock screen controls).
+- [x] Add support for remote control (lock screen controls).
 - [ ] Add simple unit tests for ViewModels.
 - [ ] Display waveform or animation during playback.
 - [x] Add option to download song for offline use.
@@ -35,4 +35,6 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 <h3>Current problems:</h3>
 
 - [x] There's a bug where if user is offline, downloaded songs work as expected, yet undownloaded songs have a bug where they either do not show player slider or if there's downloaded song playing it shows that song, just paused
+- [x] Lock screen slider does not work yet
+
 
