@@ -71,7 +71,7 @@ class AudioManager {
                     }
                 }
             } catch {
-                self.error = Constants.Strings.durationError + " \(error)"
+                self.error = Constants.Strings.durationError + " \(error.localizedDescription)"
             }
 
             await MainActor.run {
@@ -164,7 +164,7 @@ class AudioManager {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            self.error = "Failed to configure AVAudioSession: \(error)"
+            self.error = "Failed to configure AVAudioSession: \(error.localizedDescription)"
         }
     }
     

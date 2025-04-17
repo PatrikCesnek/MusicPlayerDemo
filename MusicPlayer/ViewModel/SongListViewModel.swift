@@ -63,7 +63,7 @@ class SongListViewModel {
                 downloadedSongs.insert(song.id)
                 
             } catch {
-                self.error = Constants.Strings.downloadError + " \(error)"
+                self.error = Constants.Strings.downloadError + " \(error.localizedDescription)"
             }
         }
     }
@@ -73,7 +73,7 @@ class SongListViewModel {
             try FileDownloadManager.shared.deleteFile(named: song.fileName)
             downloadedSongs.remove(song.id)
         } catch {
-            self.error = Constants.Strings.deletionError + " \(error)"
+            self.error = Constants.Strings.deletionError + " \(error.localizedDescription)"
         }
     }
 }
