@@ -19,41 +19,42 @@ class AudioManager {
     var duration: Double = 0
     var isLoading = false
     var error: String?
-    
+    var currentFileName: String?
+
     private var timeObserver: Any?
     
     static let shared = AudioManager()
-    private init() {}
+    private init() {
+        configureAudioSession()
+    }
 
-    func load(url: URL, fileName: String) {
-        guard player == nil else {
-            error = Constants.Strings.alreadyPlaying
-            return
-        }
-
-        isLoading = true
-
-        Task {
-            let localURL: URL
-            if let existing = FileDownloadManager.shared.localFileURL(named: fileName) {
-                localURL = existing
+    func loadAndPlay(url: URL, fileName: String, forceStream: Bool = false) async throws {
+        if currentFileName != fileName || player == nil {
+            isLoading = true
+            
+            let playURL: URL
+            
+            if !forceStream, let localURL = FileDownloadManager.shared.localFileURL(named: fileName) {
+                playURL = localURL
             } else {
-                do {
-                    localURL = try await FileDownloadManager.shared.downloadFile(from: url, fileName: fileName)
-                } catch {
-                    self.error =  Constants.Strings.downloadError + " \(error)"
-                    await MainActor.run { self.isLoading = false }
-                    return
-                }
+                playURL = url
             }
 
             await MainActor.run {
-                self.preparePlayer(with: localURL)
+                self.preparePlayer(with: playURL)
+                self.currentFileName = fileName
+                self.player?.play()
+                self.isPlaying = true
             }
+        } else {
+            player?.play()
+            isPlaying = true
         }
     }
 
     private func preparePlayer(with url: URL) {
+        stop()
+        
         playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
 
@@ -129,18 +130,23 @@ class AudioManager {
 
         player.seek(to: .zero)
         currentTime = 0
-        player.play()
-        isPlaying = true
+        if !isPlaying {
+            player.play()
+            isPlaying = true
+        }
     }
-
-    func playNextSong(from url: URL, fileName: String) {
-        stop()
-        player = nil
-        playerItem = nil
-        currentTime = 0
-        duration = 0
-        isPlaying = false
-        load(url: url, fileName: fileName)
+    
+    func playNextSongAsync(from url: URL, fileName: String) async throws {
+        if currentFileName != fileName {
+            stop()
+            player = nil
+            playerItem = nil
+            currentTime = 0
+            duration = 0
+            isPlaying = false
+        }
+        
+        try await loadAndPlay(url: url, fileName: fileName)
     }
 
     func stop() {
@@ -162,13 +168,13 @@ class AudioManager {
         }
     }
     
-    func setupNowPlaying(song: Song, currentTime: Double, duration: Double) {
+    func setupNowPlaying(song: Song) {
         var nowPlayingInfo: [String: Any] = [
             MPMediaItemPropertyTitle: song.title,
             MPMediaItemPropertyArtist: song.artist,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
             MPMediaItemPropertyPlaybackDuration: duration,
-            MPNowPlayingInfoPropertyPlaybackRate: 1.0
+            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
         ]
 
         if let artworkURL = song.artworkURL,
@@ -182,8 +188,23 @@ class AudioManager {
     
     func configureRemoteCommands(togglePlayPause: @escaping () -> Void) {
         let center = MPRemoteCommandCenter.shared()
-        center.playCommand.addTarget { _ in togglePlayPause(); return .success }
-        center.pauseCommand.addTarget { _ in togglePlayPause(); return .success }
+        
+        center.playCommand.isEnabled = true
+        center.pauseCommand.isEnabled = true
+        center.nextTrackCommand.isEnabled = false
+        center.previousTrackCommand.isEnabled = false
+        
+        center.playCommand.addTarget { [weak self] _ in
+            self?.player?.play()
+            self?.isPlaying = true
+            return .success
+        }
+        
+        center.pauseCommand.addTarget { [weak self] _ in
+            self?.player?.pause()
+            self?.isPlaying = false
+            return .success
+        }
     }
 
     deinit {

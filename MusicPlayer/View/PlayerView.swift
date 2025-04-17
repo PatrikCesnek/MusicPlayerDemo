@@ -18,45 +18,55 @@ struct PlayerView: View {
         Group {
             if viewModel.isLoading {
                 ProgressView()
-            } else {
-                VStack(spacing: 20) {
-                    SongImage(imageURL: viewModel.song.artworkURL)
-                        .frame(height: 250)
-                        .padding(24)
-
-                    Text(viewModel.song.title)
-                        .font(.title)
-                        .fontWeight(.bold)
-
-                    Text(viewModel.song.artist)
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-
-                    Spacer()
-
-                    if viewModel.audioManager.duration > 0 && viewModel.audioManager.duration.isFinite {
-                        SliderView(
-                            config: .init(
-                                currentTime: $viewModel.audioManager.currentTime,
-                                duration: viewModel.audioManager.duration,
-                                seekAction: { _ in
-                                    viewModel.seek(to: viewModel.audioManager.currentTime)
-                                }
-                            )
-                        )
-                        .padding(16)
+            } else if let error = viewModel.error {
+                ErrorView(
+                    errorString: error,
+                    retry: {
+                        viewModel.retry()
                     }
-                    
-                    PlayerControlsView(
-                        restart: { viewModel.restart() },
-                        togglePlayPause: { viewModel.togglePlayPause() },
-                        downloadSong: { viewModel.downloadSong() },
-                        deleteDownload: { viewModel.deleteDownload() },
-                        isDownloaded: viewModel.isDownloaded,
-                        isPlaying: $viewModel.audioManager.isPlaying
-                    )
+                )
+                .padding(16)
+            } else {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        SongImage(imageURL: viewModel.song.artworkURL)
+                            .frame(height: 250)
+                            .padding(24)
 
-                    Spacer()
+                        Text(viewModel.song.title)
+                            .font(.title)
+                            .fontWeight(.bold)
+
+                        Text(viewModel.song.artist)
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+
+                        Spacer()
+
+                        if viewModel.audioManager.duration > 0 && viewModel.audioManager.duration.isFinite {
+                            SliderView(
+                                config: .init(
+                                    currentTime: $viewModel.audioManager.currentTime,
+                                    duration: viewModel.audioManager.duration,
+                                    seekAction: { _ in
+                                        viewModel.seek(to: viewModel.audioManager.currentTime)
+                                    }
+                                )
+                            )
+                            .padding(16)
+                        }
+                        
+                        PlayerControlsView(
+                            restart: { viewModel.restart() },
+                            togglePlayPause: { viewModel.togglePlayPause() },
+                            downloadSong: { viewModel.downloadSong() },
+                            deleteDownload: { viewModel.deleteDownload() },
+                            isDownloaded: viewModel.isDownloaded,
+                            isPlaying: $viewModel.audioManager.isPlaying
+                        )
+
+                        Spacer()
+                    }
                 }
             }
         }
