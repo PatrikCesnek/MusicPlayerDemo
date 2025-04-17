@@ -34,5 +34,5 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 
 <h3>Current problems:</h3>
 
-- [x] Player does not play the song when it appears, user has to click play
+- [x] There's a bug where if user is offline, downloaded songs work as expected, yet undownloaded songs have a bug where they either do not show player slider or if there's downloaded song playing it shows that song, just paused
 
