@@ -44,6 +44,9 @@ struct PlayerView: View {
                         Spacer()
 
                         if viewModel.audioManager.duration > 0 && viewModel.audioManager.duration.isFinite {
+                            
+                            WavesView(isPlaying: $viewModel.audioManager.isPlaying)
+
                             SliderView(
                                 config: .init(
                                     currentTime: $viewModel.audioManager.currentTime,
