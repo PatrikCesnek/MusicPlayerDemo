@@ -43,20 +43,30 @@ class AudioManager {
             }
 
             await MainActor.run {
-                self.preparePlayer(with: playURL)
+                self.preparePlayer(with: playURL, song: song)
                 self.currentFileName = fileName
                 self.player?.play()
                 self.isPlaying = true
-                self.setupNowPlaying(song: song)
+                NowPlayingManager.setup(
+                    with: song,
+                    isPlaying: isPlaying,
+                    currentTime: currentTime,
+                    duration: duration
+                )
             }
         } else {
             player?.play()
             isPlaying = true
-            setupNowPlaying(song: song)
+            NowPlayingManager.setup(
+                with: song,
+                isPlaying: isPlaying,
+                currentTime: currentTime,
+                duration: duration
+            )
         }
     }
 
-    private func preparePlayer(with url: URL) {
+    private func preparePlayer(with url: URL, song: Song) {
         stop()
         
         playerItem = AVPlayerItem(url: url)
@@ -72,6 +82,13 @@ class AudioManager {
                 if seconds.isFinite {
                     await MainActor.run {
                         self.duration = seconds
+                        self.currentSong = song
+                        NowPlayingManager.setup(
+                            with: song,
+                            isPlaying: self.isPlaying,
+                            currentTime: self.currentTime,
+                            duration: self.duration
+                        )
                     }
                 }
             } catch {
@@ -109,21 +126,23 @@ class AudioManager {
             forInterval: CMTime(seconds: 1, preferredTimescale: 600),
             queue: .main
         ) { [weak self] time in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.currentTime = time.seconds
+            let newTime = time.seconds
+
+            self.currentTime = newTime
 
             if let song = self.currentSong {
-                self.updateNowPlayingInfo(
+                NowPlayingManager.update(
                     title: song.title,
                     artist: song.artist,
+                    currentTime: newTime,
                     duration: self.duration,
-                    currentTime: self.currentTime
+                    isPlaying: self.isPlaying
                 )
             }
         }
     }
-
 
     private func addPlaybackFinishedObserver() {
         guard let item = playerItem else { return }
@@ -190,32 +209,6 @@ class AudioManager {
         }
     }
     
-    func setupNowPlaying(song: Song) {
-        Task {
-            var nowPlayingInfo: [String: Any] = [
-                MPMediaItemPropertyTitle: song.title,
-                MPMediaItemPropertyArtist: song.artist,
-                MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
-                MPMediaItemPropertyPlaybackDuration: duration,
-                MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
-            ]
-
-            if let artworkURL = song.artworkURL {
-                do {
-                    let (data, _) = try await URLSession.shared.data(from: artworkURL)
-                    if let image = UIImage(data: data) {
-                        let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
-                        nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
-                    }
-                } catch {
-                    print("Failed to load artwork: \(error)")
-                }
-            }
-
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-        }
-    }
-    
     func configureRemoteCommands(togglePlayPause: @escaping () -> Void) {
         let center = MPRemoteCommandCenter.shared()
         
@@ -235,17 +228,6 @@ class AudioManager {
             self?.isPlaying = false
             return .success
         }
-    }
-    
-    func updateNowPlayingInfo(title: String, artist: String, duration: Double, currentTime: Double) {
-        var nowPlayingInfo = [String: Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = title
-        nowPlayingInfo[MPMediaItemPropertyArtist] = artist
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
     deinit {

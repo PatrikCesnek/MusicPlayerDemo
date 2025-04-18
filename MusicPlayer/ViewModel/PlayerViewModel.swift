@@ -49,7 +49,6 @@ class PlayerViewModel {
                     song: song,
                     forceStream: forceStream
                 )
-                audioManager.setupNowPlaying(song: song)
             } catch {
                 self.error = error.localizedDescription
                 showAlert(title: Constants.Strings.playbackError, message: error.localizedDescription)
