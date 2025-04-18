@@ -43,7 +43,7 @@ class AudioManager {
             }
 
             await MainActor.run {
-                self.preparePlayer(with: playURL)
+                self.preparePlayer(with: playURL, song: song)
                 self.currentFileName = fileName
                 self.player?.play()
                 self.isPlaying = true
@@ -66,7 +66,7 @@ class AudioManager {
         }
     }
 
-    private func preparePlayer(with url: URL) {
+    private func preparePlayer(with url: URL, song: Song) {
         stop()
         
         playerItem = AVPlayerItem(url: url)
@@ -82,6 +82,13 @@ class AudioManager {
                 if seconds.isFinite {
                     await MainActor.run {
                         self.duration = seconds
+                        self.currentSong = song
+                        NowPlayingManager.setup(
+                            with: song,
+                            isPlaying: self.isPlaying,
+                            currentTime: self.currentTime,
+                            duration: self.duration
+                        )
                     }
                 }
             } catch {
@@ -119,22 +126,23 @@ class AudioManager {
             forInterval: CMTime(seconds: 1, preferredTimescale: 600),
             queue: .main
         ) { [weak self] time in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.currentTime = time.seconds
+            let newTime = time.seconds
+
+            self.currentTime = newTime
 
             if let song = self.currentSong {
                 NowPlayingManager.update(
                     title: song.title,
                     artist: song.artist,
-                    currentTime: currentTime,
-                    duration: duration,
-                    isPlaying: isPlaying
+                    currentTime: newTime,
+                    duration: self.duration,
+                    isPlaying: self.isPlaying
                 )
             }
         }
     }
-
 
     private func addPlaybackFinishedObserver() {
         guard let item = playerItem else { return }
