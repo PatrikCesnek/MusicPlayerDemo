@@ -10,6 +10,7 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 <p>
   <img height="500" alt="Screenshot 1" src="https://github.com/user-attachments/assets/1341392a-6b14-4903-9a4d-f810f25978a9" />
   <img height="500" alt="Screenshot 2" src="https://github.com/user-attachments/assets/93acd770-acb7-4982-9a82-25fc639a2fb9" />
+  <img height="500" alt="Screenshot 3" src="https://github.com/user-attachments/assets/5244e50e-fa48-4fb7-98c9-77a8bcff1831" />
   <img height="470" alt="Lock Screen" src="https://github.com/user-attachments/assets/8f2127ba-f4e9-4508-b4d1-f503d6323029" />
 </p>
 
@@ -30,7 +31,7 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 - [x] Persist last played song and position.
 - [x] Add support for remote control (lock screen controls).
 - [ ] Add simple unit tests for ViewModels.
-- [ ] Display waveform or animation during playback.
+- [x] Display waveform or animation during playback.
 - [x] Add option to download song for offline use.
 
 <h3>Current problems:</h3>
