@@ -8,8 +8,9 @@ I put most of strings into Constants.swift file for safety and if the string nee
 For now I'm still working on optional requiremetns, but I wanted to be sure everything is here in case I get stuck on something. :)
 
 <p>
-  <img width="310" alt="Screenshot 2025-04-17 at 12 46 55" src="https://github.com/user-attachments/assets/1341392a-6b14-4903-9a4d-f810f25978a9" />
-<img width="310" alt="Screenshot 2025-04-16 at 15 19 01" src="https://github.com/user-attachments/assets/93acd770-acb7-4982-9a82-25fc639a2fb9" />
+  <img height="500" alt="Screenshot 1" src="https://github.com/user-attachments/assets/1341392a-6b14-4903-9a4d-f810f25978a9" />
+  <img height="500" alt="Screenshot 2" src="https://github.com/user-attachments/assets/93acd770-acb7-4982-9a82-25fc639a2fb9" />
+  <img height="470" alt="Lock Screen" src="https://github.com/user-attachments/assets/8f2127ba-f4e9-4508-b4d1-f503d6323029" />
 </p>
 
 <h3>Basic Requirements:</h3>
@@ -35,4 +36,6 @@ For now I'm still working on optional requiremetns, but I wanted to be sure ever
 <h3>Current problems:</h3>
 
 - [x] There's a bug where if user is offline, downloaded songs work as expected, yet undownloaded songs have a bug where they either do not show player slider or if there's downloaded song playing it shows that song, just paused
+- [x] Controls are needed to be added into lock screen controlls
+
 
