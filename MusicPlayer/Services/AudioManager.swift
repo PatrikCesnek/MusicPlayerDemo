@@ -47,12 +47,22 @@ class AudioManager {
                 self.currentFileName = fileName
                 self.player?.play()
                 self.isPlaying = true
-                self.setupNowPlaying(song: song)
+                NowPlayingManager.setup(
+                    with: song,
+                    isPlaying: isPlaying,
+                    currentTime: currentTime,
+                    duration: duration
+                )
             }
         } else {
             player?.play()
             isPlaying = true
-            setupNowPlaying(song: song)
+            NowPlayingManager.setup(
+                with: song,
+                isPlaying: isPlaying,
+                currentTime: currentTime,
+                duration: duration
+            )
         }
     }
 
@@ -114,11 +124,12 @@ class AudioManager {
             self.currentTime = time.seconds
 
             if let song = self.currentSong {
-                self.updateNowPlayingInfo(
+                NowPlayingManager.update(
                     title: song.title,
                     artist: song.artist,
-                    duration: self.duration,
-                    currentTime: self.currentTime
+                    currentTime: currentTime,
+                    duration: duration,
+                    isPlaying: isPlaying
                 )
             }
         }
@@ -190,32 +201,6 @@ class AudioManager {
         }
     }
     
-    func setupNowPlaying(song: Song) {
-        Task {
-            var nowPlayingInfo: [String: Any] = [
-                MPMediaItemPropertyTitle: song.title,
-                MPMediaItemPropertyArtist: song.artist,
-                MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
-                MPMediaItemPropertyPlaybackDuration: duration,
-                MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
-            ]
-
-            if let artworkURL = song.artworkURL {
-                do {
-                    let (data, _) = try await URLSession.shared.data(from: artworkURL)
-                    if let image = UIImage(data: data) {
-                        let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
-                        nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
-                    }
-                } catch {
-                    print("Failed to load artwork: \(error)")
-                }
-            }
-
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-        }
-    }
-    
     func configureRemoteCommands(togglePlayPause: @escaping () -> Void) {
         let center = MPRemoteCommandCenter.shared()
         
@@ -235,17 +220,6 @@ class AudioManager {
             self?.isPlaying = false
             return .success
         }
-    }
-    
-    func updateNowPlayingInfo(title: String, artist: String, duration: Double, currentTime: Double) {
-        var nowPlayingInfo = [String: Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = title
-        nowPlayingInfo[MPMediaItemPropertyArtist] = artist
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
     deinit {
