@@ -19,7 +19,9 @@ class AudioManager {
     var duration: Double = 0
     var isLoading = false
     var error: String?
+    
     var currentFileName: String?
+    var currentSong: Song?
 
     private var timeObserver: Any?
     
@@ -28,7 +30,7 @@ class AudioManager {
         configureAudioSession()
     }
 
-    func loadAndPlay(url: URL, fileName: String, forceStream: Bool = false) async throws {
+    func loadAndPlay(url: URL, fileName: String, song: Song, forceStream: Bool = false) async throws {
         if currentFileName != fileName || player == nil {
             isLoading = true
             
@@ -41,18 +43,30 @@ class AudioManager {
             }
 
             await MainActor.run {
-                self.preparePlayer(with: playURL)
+                self.preparePlayer(with: playURL, song: song)
                 self.currentFileName = fileName
                 self.player?.play()
                 self.isPlaying = true
+                NowPlayingManager.setup(
+                    with: song,
+                    isPlaying: isPlaying,
+                    currentTime: currentTime,
+                    duration: duration
+                )
             }
         } else {
             player?.play()
             isPlaying = true
+            NowPlayingManager.setup(
+                with: song,
+                isPlaying: isPlaying,
+                currentTime: currentTime,
+                duration: duration
+            )
         }
     }
 
-    private func preparePlayer(with url: URL) {
+    private func preparePlayer(with url: URL, song: Song) {
         stop()
         
         playerItem = AVPlayerItem(url: url)
@@ -68,10 +82,17 @@ class AudioManager {
                 if seconds.isFinite {
                     await MainActor.run {
                         self.duration = seconds
+                        self.currentSong = song
+                        NowPlayingManager.setup(
+                            with: song,
+                            isPlaying: self.isPlaying,
+                            currentTime: self.currentTime,
+                            duration: self.duration
+                        )
                     }
                 }
             } catch {
-                self.error = Constants.Strings.durationError + " \(error)"
+                self.error = Constants.Strings.durationError + " \(error.localizedDescription)"
             }
 
             await MainActor.run {
@@ -105,7 +126,21 @@ class AudioManager {
             forInterval: CMTime(seconds: 1, preferredTimescale: 600),
             queue: .main
         ) { [weak self] time in
-            self?.currentTime = time.seconds
+            guard let self else { return }
+
+            let newTime = time.seconds
+
+            self.currentTime = newTime
+
+            if let song = self.currentSong {
+                NowPlayingManager.update(
+                    title: song.title,
+                    artist: song.artist,
+                    currentTime: newTime,
+                    duration: self.duration,
+                    isPlaying: self.isPlaying
+                )
+            }
         }
     }
 
@@ -136,7 +171,7 @@ class AudioManager {
         }
     }
     
-    func playNextSongAsync(from url: URL, fileName: String) async throws {
+    func playNextSongAsync(from url: URL, fileName: String, song: Song) async throws {
         if currentFileName != fileName {
             stop()
             player = nil
@@ -145,8 +180,8 @@ class AudioManager {
             duration = 0
             isPlaying = false
         }
-        
-        try await loadAndPlay(url: url, fileName: fileName)
+
+        try await loadAndPlay(url: url, fileName: fileName, song: song)
     }
 
     func stop() {
@@ -161,29 +196,17 @@ class AudioManager {
     
     func configureAudioSession() {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(
+                .playback,
+                mode: .default,
+                policy: .longFormAudio,
+                options: []
+            )
+            try session.setActive(true)
         } catch {
-            self.error = "Failed to configure AVAudioSession: \(error)"
+            self.error = "Failed to configure AVAudioSession: \(error.localizedDescription)"
         }
-    }
-    
-    func setupNowPlaying(song: Song) {
-        var nowPlayingInfo: [String: Any] = [
-            MPMediaItemPropertyTitle: song.title,
-            MPMediaItemPropertyArtist: song.artist,
-            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
-            MPMediaItemPropertyPlaybackDuration: duration,
-            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
-        ]
-
-        if let artworkURL = song.artworkURL,
-           let data = try? Data(contentsOf: artworkURL),
-           let image = UIImage(data: data) {
-            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
-        }
-
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
     
     func configureRemoteCommands(togglePlayPause: @escaping () -> Void) {
