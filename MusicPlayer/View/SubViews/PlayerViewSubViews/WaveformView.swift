@@ -8,26 +8,48 @@
 import SwiftUI
 
 struct WaveformView: View {
-    @Binding private var level: Float
-    
-    init(
-        level: Binding<Float>
-    ) {
-        self._level = level
-    }
+    @Binding var isPlaying: Bool
+    @State private var animatedLevel: CGFloat = 0.5
 
     var body: some View {
         GeometryReader { geometry in
-            Capsule()
-                .fill(Color.accentColor)
-                .frame(width: geometry.size.width * 0.6, height: CGFloat(max(1, CGFloat(level) * geometry.size.height)))
-                .animation(.easeInOut(duration: 0.1), value: level)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack {
+                Spacer()
+                Capsule()
+                    .fill(Color.accentColor)
+                    .frame(
+                        width: 10,
+                        height: geometry.size.height * animatedLevel
+                    )
+                    .animation(
+                        isPlaying
+                        ? .easeInOut(duration: 0.4).repeatForever(autoreverses: true)
+                        : .default,
+                        value: animatedLevel
+                    )
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .onAppear {
+                handleAnimation(for: isPlaying)
+            }
+            .onChange(of: isPlaying, initial: false) { _, newValue in
+                handleAnimation(for: newValue)
+            }
+        }
+    }
+
+    private func handleAnimation(for playing: Bool) {
+        if playing {
+            animatedLevel = CGFloat.random(in: 0.5...1.0)
+        } else {
+            withAnimation(.default) {
+                animatedLevel = 0
+            }
         }
     }
 }
 
 #Preview {
-    @Previewable @State var level: Float = 0.5
-    WaveformView(level: $level)
+    @Previewable @State var isPlaying: Bool = true
+    WaveformView(isPlaying: $isPlaying)
 }
